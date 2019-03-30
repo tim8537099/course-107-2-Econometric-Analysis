@@ -99,7 +99,10 @@ tempDF%>%
 數值變數v.s.數值變數
 
 ```{r ols-paircoor3-r, results='hide'}
-
+journals %>% 
+  select(citeprice,subs) %>%
+  mutate_all(log) %>%
+  pairs.panels()
 
 ```
 
@@ -110,11 +113,61 @@ tempDF%>%
 # 複迴歸模型
 
 ```{r}
+journals %>% 
+  lm(log(subs)~log(citeprice),data=.) -> model1
+
+journals %>%
+  lm(log(subs)~log(citeprice)+foundingyear,data=.) -> model2
+
+```
+
+
+
+```{r}
+tidy(model1)
 
 
 ```
 
+
+```{r}
+augment(model1)
+```
+```{r}
+glance(model1)
+```
+
+
+```{r}
+journals %>% 
+  lm(log(subs)~log(citeprice),data=.) -> model_1
+journals %>%
+  lm(log(subs)~log(citeprice)+foundingyear,data=.) -> model_2
+
+library(sandwich)
+library(lmtest)
+library(stargazer)
+                                                                                                                                                                                                             
+#使用vcovHC函數來計算HC1型的異質變異（即橫斷面資料下的線性迴歸模型）
+coeftest(model_1, vcov. = vcovHC, type="HC1") -> model_1_coeftest
+coeftest(model_2, vcov. = vcovHC, type="HC1") -> model_2_coeftest
+
+stargazer(model_1, model_2, 
+          se=list(model_1_coeftest[,"Std. Error"], model_2_coeftest[,2]),
+          type="html",
+          align=TRUE)
+
+
+```
+
+
+
+
+
+
+
 ## 模型比較
+
 
 ```{r ols-comp-r, results='hide', warning=FALSE}
 
