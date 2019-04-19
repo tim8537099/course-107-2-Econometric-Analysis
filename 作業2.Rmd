@@ -1,0 +1,59 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+
+1-1
+$$Y=Y_{-p}+{\beta}^\star P
+E(Y|P)= E(Y_{-p})+{\beta}^\star P|P)
+=E[E(Y_{-p}|rincome)+\tilde{\epsilon}|P]+{\beta}^{\star}P
+=E(2+3rincome+\tilde{\epsilon}|P)+{\beta}^{\star}P
+=2+3E(rincome|P)+E(\tilde{\epsilon}|P)+{\beta}^{\star}P
+=2+{\beta}^{\star}P 
+其中rincome ⊥ P 則 E(rincome|p)=0
+\tilde{\epsilon}⊥ P 則 E(\tilde{\epsilon}|P)=0$$
+
+1-5
+E(Y|P,rincome,Z)=E(Y_{-p}+{\beta}^{\star}P|P,rincome,Z)
+=E[E(Y_{-p}|rincome)+\tilde{\epsilon}|P,rincome,Z]+\beta^{\star}P
+=2+3rincome+E(\tilde{\epsilon}|P,rincome,Z)+\beta^{\star}P
+=2+3erincome+\beta^{\star}
+其中E(\tilde{\epsilon}|P,rincome,Z)=E[Y_{-p}-E(Y_{-p}|rincome|P,rincome,Z)]
+=E[Y_{-p}|P,rincome,Z]-E(Y_-p|rincome)|P,rincome,Z]
+=E(Y_{-p}|P,rincome,Z)-E(Y_-p|P,rincome,Z)=0
+
+1-4
+E(Y|P_z,rincome)=E(Y_{-p}+\beta^*P|P_z,rincome)$
+                $=E[E(Y_{-p}|rincome)+\tilde{\epsilon}|P_z,rincome]+E(\beta^*P|P_z,rincome)$
+                $=2+3rincome+\beta^*P_z$
+                
+其中: 
+$E(\tilde\epsilon|P_z,rincome)=E[Y_{-p}-E(Y_{-p}|rincome)|P_z,rincome]$
+                             $=E(Y_{-p}|P_z,rincome)-E(Y_{-p}|P_z,rincome)=0$
+                             
+由此過程可以得知，$E(Y|P_z,rincome)$其中$P_z$的係數為$\beta^*
+
+
+
+1-2-2
+$$E(Y|P,rincome) 中P的係數為{\beta^\star}$$
+$$E(Y|P,rincome)=E(Y_{-P}+{\beta^\star}P|P,rincome)=E[E(Y_{-P}|rincome)+\tilde{\epsilon}|P,rincome]+{\beta^\star}P
+=E(Y_{-P}|rincome)+E(\tilde{\epsilon}|P,rincome)+{\beta^\star}P=2+3rincome+0+{\beta^\star}P$$
+
+
+1-2-1
+$$E(Y|P)中P的係數不等於{\beta^\star}$$
+$$E(Y|P)=E(2+3rincome|P)+E(\tilde{\epsilon}|P)+{\beta^\star}P=E(2+3rincome|P)+0+{\beta^\star}P
+=2+3E(rincome|P)+{\beta^\star}P=2+3(0.5+P)+{\beta^\star}P=3.5+(3+{\beta^\star})P$$
+
+
