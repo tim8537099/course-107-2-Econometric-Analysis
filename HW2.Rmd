@@ -1,0 +1,258 @@
+---
+title: "作業2"
+output: 
+  html_document: 
+    toc: false
+    number_sections: false
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+params:
+  name: ["阿花","阿明"]
+  id: [710761001,710661002]
+  group: "team1"
+  url: ""
+---
+請依狀況更改上面的name,id及group（分別代表組員姓名，學號及組號），但請勿更改下面三行的設定。  
+
+***
+
+姓名：`r params$name`  
+學號：`r params$id`  
+組號：`r params$group`  
+網頁：`r params$url` 
+
+***
+
+作業除了讓同學檢視課堂所學程式外，有些題目只會給你未教過的函數建議（純為建議，你也可以不使用），你必需使用Help或網路查尋去了解函數的正確使用；搜詢正確程式函數使用的能力，也是程式設計的基本功。
+
+如果是程式答案，在r chunk區塊裡面作答, 如：
+```{r}
+#你的程式答案
+```
+
+如果是文字答案，請直接在該題空白處回答。
+
+
+# 1 實證應用
+Execute the following code lines to import fertil2 data frame. 
+```{r data1}
+library(readr)
+library(dplyr)
+library(AER)
+library(stargazer)
+fertil2 <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/fertil2.csv")
+```
+The data includes, for women in Botswana during 1988, information on number of children, years of education, age, and religious and economic status variables.
+
+
+## 1.1
+Estimate the model:
+$$children=\beta_{0}+\beta_{1}educ+\beta_{2}age+\beta_{3}age^{2}+u$$
+by OLS, and interpret the estimates.
+
+```{r ans11}
+mutate(age2=age^2,fertil2)-> fertil2
+lm(children~educ+age+age2,fertil2)
+
+```
+
+
+
+
+
+
+
+## 1.2
+The variable frsthalf is a dummy variable equal to one if the woman was born during the first six months of the year. Assuming that frsthalf is uncorrelated with the error term from 1.1, show that frsthalf is a reasonable IV candidate for educ. (Hint: you need to do a regression.)
+
+
+```{r ans12}
+lm(educ~frsthalf+age+age2,fertil2)
+
+```
+
+## 1.3
+Estimate the model from part 1.1 by using frsthalf as an IV for educ. Compare the estimated effect of education with the OLS estiimate from 1.1.
+
+
+```{r ans13}
+tsls_1 <- ivreg(children ~ educ+age+age2|age+age2+frsthalf,data=fertil2) 
+
+summary(tsls_1)
+
+
+
+
+```
+
+
+
+
+
+## 1.4
+Add the binary variables electric, tv, and bicycle to the model and assume that these are exogenous. Estimate the equation by OLS and TSLS and compare the estimated coefficients on educ. Interpret the coefficient on tv and explain why television ownership has a negative effect on fertility.
+
+```{r ans14}
+ols <-lm(children~educ+age+age2+electric+tv+bicycle,fertil2)
+tsls_2 <- ivreg(children ~ educ+age+age2+electric+tv+bicycle|age+age2+frsthalf+electric+tv+bicycle,data=fertil2) 
+summary(tsls_2)
+
+#看電視會影響生產小孩的時間所以其係數會是負的
+```
+
+
+
+
+
+## 1.5 
+Continue from 1.4, conduct Hausman test to see if OLS is valid for the study under a 5 percent test size.
+
+
+```{r ans15}
+stargazer(tsls_2,ols,type="html",
+          column.labels = c("tsls", "ols"),
+          add.lines = list(c("TSLS tests p-value", "",""),
+                           c("Q1: Sargan","NA","0.5641"),
+                           c("Q2: Weak instruments","1.4e-08","<2e-16"),
+                           c("Q3: Wu-Hausman","0.263","0.0569")
+                           ))
+```
+
+## 1.6
+Can we test whether frsthalf is indeed exogenous for being an IV? why or why not?
+
+## 1.7
+If we add one more IV catholic, can we test IV exogeneity? If yes, what is the test result under a 5 percent test size.
+
+
+```{r ans17}
+
+```
+
+## 1.8
+Are frsthalf and catholic weak IVs?
+
+
+```{r ans18}
+
+```
+
+# 2 複迴歸與工具變數
+
+一開始的效應模型：
+$$Y=Y_{-p}+\beta^* P$$
+假設州所得$rincome$會影響立足點，即影響價格以外的需求量之決定。
+
+考慮兩個面向的訊息拆解：
+
+  A. 針對立足點：$Y_{-p}=\tilde{\epsilon}+E(Y_{-p}|rincome)$，為方便討論假設$E(Y_{-p}|rincome)=2+3 rincome$; 
+  
+  B. 針對效應（產生）變數：$P=\tilde{v}+P_z$其中$P_z=E(P|z)$。
+
+由於是訊息拆解，所以
+
+> A中的$\tilde{\epsilon}$與$rincome$無關。
+
+> B中的$\tilde{v}$與$z$無關。
+
+## 2.1 立足點情境A.1
+
+  【A.1】P與立足點中的兩部份，$\tilde{\epsilon}$及$rincome$，皆無關。
+
+說明此時$E(Y|P)$中P的係數即為$\beta^*$.
+
+## 2.2 立足點情境A.2
+
+此情境包含兩部份：
+
+  【A.2.1】 P與$\tilde{\epsilon}$無關；但
+
+  【A.2.2】 P與$rincome$有關——令$E(rincome|P)=0.5+P$。
+
+即P與$Y_{-p}$有關連，但此關連性來自於【A.2.2】中P與rincome的關連——即$E(rincome|P)$部份。
+
+說明此時$E(Y|P)$中P的係數「不」為$\beta^*$，但$E(Y|P,rincome)$中P的係數為$\beta^*$。
+
+## 2.3 立足點情境A.3
+
+考慮以下兩個情境條件：
+
+  【A.3.1】 P與$\tilde{\epsilon}$有關；且
+
+  【A.3.2】 P與$rincome$有關——令$E(rincome|P)=0.5+P$。
+
+即P與$Y_{-p}$有關連：此關連性可來自於【A.2.2】中P與rincome的關連，也可來自於它與「非價格、非所得」引起的銷量之關連（即與$\tilde{\epsilon}$相關部份）
+
+若$E(\tilde{\epsilon}|P)=0.5+2P$，說明不論使用$E(Y|P)$或$E(Y|P,rincome)$，其P之係數都不會是$\beta^*$
+
+## 2.4 立足點情境A.3+效應情境B.1：TSLS
+
+考慮以下三個情境條件：
+
+  【A.3.1】 P與$\tilde{\epsilon}$有關；且
+
+  【A.3.2】 P與$rincome$有關——令$E(rincome|P)=0.5+P$。
+  
+  【B.1】$P_z$與$\tilde{\epsilon}$無關
+  
+即P與$Y_{-p}$有關連：此關連性可來自於【A.2.2】中P與rincome的關連，也可來自於它與「非價格、非所得」引起的銷量之關連（即與$\tilde{\epsilon}$相關部份）——以上是【A.3.1-3.2】的結果；但我們找到工具變數z，可產生【B.1】情境。
+
+若$E(\tilde{\epsilon}|P)=0.5+2P$，說明使用$E(Y|P_z,rincome)$其中$P_z$的係數會是$\beta^*$
+
+## 2.5 立足點情境A.3+效應情境B.1：複迴歸
+
+承接上題情境，即
+
+  【A.3.1】 P與$\tilde{\epsilon}$有關；且
+
+  【A.3.2】 P與$rincome$有關——令$E(rincome|P)=0.5+P$。
+  
+  【B.1】$P_z$與$\tilde{\epsilon}$無關
+  
+說明使用$E(Y|P,rincome,z)$其中$P$的係
+數不會是$\beta^*$.
+
+# 3. 替代變數
+
+有時資料並沒有所要的變數，但有其他具有代表性的替代變數（proxies）。如所要變數為「智商」，但智商沒有一定的衡量指標，我們常使用「IQ測驗成績」來代表智商，原因是我們認為它與「智商」有高度相關，也就是說：
+$$IQ測驗成績_i=智商_i+ \epsilon_i,$$
+且兩者的correlation應該很高。要注意「智商」寫在式子右邊是因為邏輯上是智商影響IQ成績。
+
+考慮一個效應結構模型： 
+$$y_i=\beta^* x_i+\gamma w_i+y_{-x,-w,i}$$
+其中$x_i$為效應解釋變數，$w_i$為控制變數，故$y_{-x,-w,i}$為去除x與w影響的立足點。假設$y_{-x,-w,i}$已達成條件式獨立，故它與$x_i$不相關（注：$y_{-x,-w,i}$是立足點拆出控制變數訊息影響部份，所以它也與$w_i$無關）；因此，$E(y_i|x_i,w_i)$中$x_i$的係數會是$\beta^*$，可直接用複迴歸得到$\beta^*$的一致性估計。
+
+> 以下各題若需要額外條件，請寫清楚並依條件情境討論。
+
+## 3.1
+
+若我們沒有真正的$x_i$資料而改成使用它的替代變數$\tilde{x}_i$進行複迴歸，且令
+$$\tilde{x}_i=x_i+\epsilon_i.$$
+請問效應解釋變數使用替代變數下，$\tilde{x}_i$的OLS估計式還有一致性嗎？（驗證$E(y_i|\tilde{x}_i,w_i)$中$\tilde{x_i}$的係數是否為$\beta^*$）要有一致性會需要什麼額外條件嗎？
+
+$$y_i=(\tilde{x_i}-\epsilon_i)\beta^{\star}+{\gamma}w_i+y_{-x,-w,i}$$
+$$if E(\epsilon_i|\tilde{x}_i)=\alpha_1+\alpha2\tilde{x}$$
+$$y_i=(\tilde{x}_i-(\alpha_1+\alpha_2\tilde{x})\beta^{\star}+\gamma w_i+y_{-x_i,-w_i}$$
+$$E(y_i|\tilde{x}_i,w_i)=(1-|\alpha_2)\beta^{\star}\tilde{x}_i-\alpha_1\beta^{\star}+\gamma w_i+y_{-x_i,-w_i}$$
+$$ 除非 E(\epsilon_i|\tilde{x}_i)=0,\tilde{x}_i\perp\epsilon_i$$
+$$E(y_i|\tilde{x}_i,w_i)$$
+
+
+
+
+
+
+
+## 3.2
+
+若我們沒有真正的$w_i$資料而改成使用它的替代變數$\tilde{w}_i$進行複迴歸，且令
+$$\tilde{w}_i=w_i+\epsilon_i.$$
+請問控制變數使用替代變數下，$x_i$的OLS估計式還有一致性嗎？（驗證$E(y_i|x_i,\tilde{w}_i)$中$x_i$的係數是否為$\beta^*$）要有一致性會需要什麼額外條件嗎？
+
+
+
+
+
+
+
